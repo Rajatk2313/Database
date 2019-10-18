@@ -1,0 +1,29 @@
+---
+- name: Ad user creation
+  hosts: 192.168.1.127
+  vars:
+   ansible_ssh_user: Administrator
+   ansible_ssh_pass: Apple@456
+   ansible_connection: winrm
+   ansible_winrm_server_cert_validation: ignore
+   gather_facts: no
+  tasks: 
+
+     - name: Ensure user nikhil is created and use custom credentials to create the user
+       win_domain_user:
+        name: nikhil
+        firstname: Nikhil
+        surname: Dogra
+        password: Admin@123
+        state: present
+        path: ou=UserAccounts1,dc=ANSIBLE,dc=COM   
+        domain_username: ANSIBLE\Administrator
+        domain_password: Apple@456
+        domain_server: Ansible.com
+     
+     - name: Add a local and domain user to a local group
+       win_group_membership:
+         name: Remote Desktop Users
+         members:
+           - ANSIBLE\nikhil
+         state: present

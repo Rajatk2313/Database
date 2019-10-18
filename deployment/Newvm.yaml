@@ -1,0 +1,34 @@
+---
+- name: VM from template
+  hosts: 192.168.1.200
+  gather_facts: false
+  connection: local
+- name: Create a virtual machine on given ESXi hostname
+  vmware_guest:
+    hostname: "{{ 192.168.1.200 }}"
+    username: "{{ root }}"
+    password: "{{ root@123 }}"
+    validate_certs: no
+    folder: /vmfs/volumes/datastore1/
+    name: createdwithannisble
+    state: poweredon
+    guest_id: centos64Guest
+    # This is hostname of particular ESXi server on which user wants VM to be deployed
+    esxi_hostname: "{{ esxidomain }}"
+    disk:
+    - size_gb: 10
+      type: thin
+      datastore: datastore1
+    hardware:
+      memory_mb: 512
+      num_cpus: 4
+      scsi: paravirtual
+    networks:
+    - name: VM Network
+      mac: 00:0c:29:67:f3:fa
+      ip: 192.168.1.99
+      netmask: 255.255.255.0
+      device_type: vmxnet3
+    wait_for_ip_address: yes
+  delegate_to: localhost
+  register: deploy_vm  

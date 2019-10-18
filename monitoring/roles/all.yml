@@ -1,0 +1,4 @@
+- include: file_status.yml
+- include: memory_status.yml
+- include: vm_status.yml
+- include: cpu_usage.yml

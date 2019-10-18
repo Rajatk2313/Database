@@ -1,0 +1,4 @@
+- import_playbook: ./roles/install_oracle_packages.yml 
+- import_playbook: ./roles/oracle_users.yml 
+- import_playbook: ./roles/install_oracle_binaries.yml 
+- import_playbook: ./roles/create_oracle_db.yml 

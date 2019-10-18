@@ -1,0 +1,52 @@
+---
+
+u01_size_gb: 1
+tmp_size_gb: 1
+oracle_base: /home/oracle/app
+oracle_home: /home/oracle/app/product/11.2.0/dbhome_1
+patch_dir: /home/oracle/Ora_Install
+remote_user: oracle
+oracle_install_directory: /home/oracle/Ora_Install/database
+source_file_directory: /var/lib/awx/projects/database/oracle/files 
+response_file_directory: /var/lib/awx/projects/database/oracle/templates 
+response_file_name: db_install.rsp
+db_response_file_name: dbca.rsp
+netca_response_file_name: netca.rsp
+gen_purpose_dbca: General_Purpose.dbc
+oracle_user: oracle
+
+soft_no_file: 5120
+hard_no_file: 10240
+soft_nproc: 10240
+hard_nproc: 10240
+soft_stack: 10240
+hard_stack: 10240
+soft_memlock: 1048576
+hard_memlock: 2097152
+
+software:
+ - softwarename: linux.x64_11gR2_database_1of2.zip
+ - softwarename: linux.x64_11gR2_database_2of2.zip
+
+packages:
+ - package: elfutils-libelf
+ - package: elfutils-libelf-devel
+ - package: glibc
+ - package: glibc-common
+ - package: glibc-devel
+ - package: gcc
+ - package: gcc-c++
+ - package: libaio-devel
+ - package: libaio
+ - package: libgcc
+ - package: libstdc++
+ - package: libstdc++-devel
+ - package: make
+ - package: sysstat
+ - package: zip 
+ - package: unzip 
+groups:
+ - name: oinstall
+ - name: dba
+users:
+ - {username: oracle, groupname: "oinstall, dba" } 

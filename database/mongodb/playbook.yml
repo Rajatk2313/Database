@@ -1,0 +1,3 @@
+- import_playbook: ./roles/mongodb_install.yml
+- import_playbook: ./roles/createdb.yml
+- import_playbook: ./roles/create_user.yml

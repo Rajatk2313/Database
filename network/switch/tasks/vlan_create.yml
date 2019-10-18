@@ -1,0 +1,35 @@
+---
+- hosts: 192.168.1.90
+  gather_facts: false
+  vars:
+    ansible_become: yes
+    ansible_become_method: enable
+    ansible_user: deep
+    ansible_password: cisco
+    ansible_become_pass: cisco
+    ansible_network_os: ios
+    ansible_connection: network_cli
+  tasks:
+    - ios_vlan:
+        vlan_id: 5
+        name: Translab
+        state: present
+
+    - name: Add interfces to vlan
+      ios_vlan:
+       vlan_id: 5
+       interfaces:
+         - Fastethernet0/3
+         - Fastethernet0/4
+
+    - name: check interfaces is assigned to vlan
+      ios_vlan:
+       vlan_id: 5
+       associated_interfaces:
+         - Fastethernet0/3
+         - Fastethernet0/4
+
+
+
+
+

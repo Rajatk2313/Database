@@ -1,0 +1,9 @@
+---
+- hosts: 192.168.1.116
+  gather_facts: false
+  tasks:
+    - shell: 
+        password_match=`awk '/A temporary password is generated for/ {a=$0} END{ print a }' /var/log/mysqld.log | awk '{print $(NF)}'`
+        echo $password_match;
+        mysql -u root -p$password_match --connect-expired-password -e "ALTER USER 'root'@'localhost' IDENTIFIED BY 'root@123'; flush privileges; "
+        exit; 

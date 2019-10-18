@@ -1,0 +1,36 @@
+---
+- hosts: 192.168.202.133
+  gather_facts: true
+  become_user: root
+  tasks:
+
+    - name: create directory
+      command: mkdir /Mysql
+
+    - name: change permission
+      file: path=/Mysql mode=777 state=directory
+
+    - name: Install MySql using tar
+      unarchive:
+       src: /mysql-5.7.27-1.el7.x86_64.rpm-bundle.tar
+       dest: /Mysql
+
+    - name: Find all rpm files in /Mysql folder
+      find:
+        paths: "/Mysql"
+        pattern: "*.rpm"
+      register: rpm_files
+
+    - set_fact:
+        rpm_list: "{{ rpm_files.files | map(attribute='path') | list}}"
+
+    - name: installing the rpm files
+      yum:
+        name: "{{rpm_list}}"
+        state: present
+
+    - name: Start MySQL Server and enable it
+      service: name=mysqld state=started enabled=yes
+     
+
+# INSTALL YUM-UTILS PACKAGE ON TARGET MACHINE

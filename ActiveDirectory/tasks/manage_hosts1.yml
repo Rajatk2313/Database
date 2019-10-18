@@ -1,0 +1,17 @@
+---
+- name: Playbook
+  hosts: 192.168.1.60
+  vars:
+   ansible_ssh_user: DUGGAL\Administrator
+   ansible_ssh_pass: Apple@456
+   ansible_connection: winrm
+   ansible_winrm_server_cert_validation: ignore
+   gather_facts: no
+  tasks:
+    - name: Create file
+      win_lineinfile:
+        path: C:\Windows\System32\drivers\etc\hosts
+        line: | 
+           192.168.1.25 ansibletower.local
+           192.168.1.70 ansibleVM
+ 

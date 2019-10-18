@@ -1,0 +1,75 @@
+---
+ - name: Your Windows Playbook
+   hosts: 192.168.1.127
+   vars:
+    ansible_ssh_user: administrator
+    ansible_ssh_pass: Apple@456
+    ansible_connection: winrm
+    ansible_winrm_server_cert_validation: ignore
+    gather_facts: yes
+   #vars_files:
+   # - /var/lib/awx/projects/AD/vars/vault_win.yml
+   tasks:
+    - name: Install AD Services feature
+      win_feature:
+        name: AD-Domain-Services
+        include_management_tools: yes
+        include_sub_features: yes
+        state: present
+      register: result  
+    # Configure DNS Feature
+    - name: Install DNS SubFeature
+      win_feature:
+        name: DNS
+        include_sub_features: true
+        include_management_tools: true
+        state: present
+      register: dns_result
+
+    - name: Collect dns provision result
+      debug:
+        msg: "{{dns_result}}"
+    
+    # Initialise Forest (Promote DC)
+    - name: Initialise Forest
+      win_domain:
+        dns_domain_name: duggal.com
+        domain_admin_user: duggal\Administrator
+        domain_admin_password: Passw0rd123
+        safe_mode_password: P@ssw0rd123
+      register: create_forest_result
+    - name: Collect computer name result
+      debug:
+        msg: "{{ create_forest_result }}"
+    - name: Reboot after forest creation
+      win_reboot:
+        connect_timeout: 15
+        post_reboot_delay: 15
+        reboot_timeout: 200
+      when: create_forest_result.reboot_required
+
+    - name: Wait for system to become reachable over WinRM
+      wait_for_connection:
+        timeout: 900
+    - name: ensure ADWS service is started
+      win_service:
+        name: ADWS
+        state: started
+      register: service_status_results
+
+    - name: Collect ADWS service status
+      debug:
+        msg: "{{ service_status_results }}"
+ #Check domain created above has completed configuration and is available
+    - name: Get Domain Details
+      win_shell: C:\Temp\ad\library\get_domain_details.ps1 -domainName duggal.com
+      register: get_domain_result
+      until: Test_domain_result is succeeded
+      retries: 3
+      delay: 120
+      ignore_errors: true
+
+    - name: Collect Test Domain result
+      debug:
+        msg: "{{ get_domain_result }}"
+

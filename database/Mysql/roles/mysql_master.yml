@@ -1,0 +1,74 @@
+---
+- hosts: localhost
+  become: true
+  become_user: root
+  
+  tasks: 
+  - name: create a mysql-bin-log directory 
+    file:
+      path: /var/lib/mysql/mysql-bin-log
+      state: directory
+      owner: mysql
+      group: mysql
+      
+ 
+  - name: create bin-log file
+    file: 
+      path: /var/lib/mysql/mysql-bin-log/mysql-bin
+      state: touch
+      owner: mysql
+      group: mysql
+ 
+  - name: change master mysql conf file
+    blockinfile: 
+       dest: /etc/my.cnf
+       block: |
+         server-id = 1
+         binlog-do-db=translab
+         log-bin = /var/lib/mysql/mysql-bin-log/mysql-bin
+       insertafter: "^[mysqld]"
+
+  - name: restart mysqld service
+    service:
+      name: mysqld
+      state: restarted
+      
+  - name: create rep. user
+    command: mysql -u root -pMysql@123 -e 'create user "slaveuser"@"%" identified by "Apple@123";'
+
+  - name: grant rep. permissions 
+    command: mysql -u root -pMysql@123 -e 'grant replication slave on *.* to "slaveuser"@"%" identified by "Apple@123";'
+
+  - name: flush privileges
+    command: mysql -u root -pMysql@123 -e 'flush privileges;'
+
+  - name: grant all privileges for DB translab to slave user
+    command: mysql -u root -pMysql@123 -e 'grant all on translab.* to "slaveuser"@"%";'
+
+  - name: grant all privileges for DB translab to slave user
+    command: mysql -u root -pMysql@123 -e 'flush privileges;'
+  
+
+  - name: use DB 
+    command: mysql -u root -pMysql@123 -e 'use translab;flush tables with read lock;'
+
+  - name: create dbdump file
+    file:
+      path: /home/dbdump.db
+      owner: root
+      group: root
+      state: touch
+
+
+  - name: export translab database
+    shell: mysqldump -u root -pMysql@123  translab --master-data > /home/dbdump.db
+
+  - name: unlock mysql tables
+    command: mysql -u root -pMysql@123 -e 'unlock tables;'
+
+  - name: move dump file to slave
+    shell: sshpass -p "root@123" scp -r /home/dbdump.db root@192.168.202.131:/home
+
+  
+##NOTEDOWN BINLOG FILE & ITS POSITION AS WE HAVE TO USE IT IN SLAVE 
+# show master status;

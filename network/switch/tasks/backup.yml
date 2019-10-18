@@ -1,0 +1,53 @@
+---
+- hosts: 192.168.1.90
+  gather_facts: true
+  vars:
+    ansible_become: yes
+    ansible_become_method: enable
+    ansible_user: translab
+    ansible_password: cisco
+    ansible_become_pass: cisco
+    ansible_network_os: ios
+    ansible_connection: network_cli
+  tasks:
+    - ios_command:
+        commands: show run
+      register: config
+ 
+    - copy:
+        content: "{{ config.stdout[0]}}"
+        dest: /run_conf_bkp.txt
+      #delegate_to: ansibletower
+      register: result
+
+    - local_action:
+        module: mail
+        host: smtp.gmail.com
+        port: 587
+        to: pardeep.singh@translabtechnologies.com
+        cc: gundeep.singh@translabtechnologies.com
+        from: gndpsingh8@gmail.com
+        username: gndpsingh8@gmail.com
+        password: 9858038163
+        attach:
+        - /run_conf_bkp.txt
+        timeout: 5
+        subject: Switch Running Config
+        body: Switch
+      #when: "{{ result.stdout[0] }}"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

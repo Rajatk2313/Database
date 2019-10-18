@@ -1,0 +1,30 @@
+---
+  - hosts: all
+    gather_facts: false
+    tasks:
+       - shell:
+            hstname=$(hostname);
+            arr=(); for i in `df -k |tr -s " " "|"|grep -v "Filesystem" |cut -f5,6 -d"|"`;
+            do per_util=$(echo $i|cut -f1 -d"%"); mnt_pt=$(echo $i|cut -f2 -d "|");
+            if [ $per_util -gt "2" ]; then echo "$mnt_pt is $per_util % utilized on server $hstname" > /home/filelog.txt;
+            File=$(cat /home/filelog.txt); echo $File; rm -rf /home/filelog.txt; fi; done
+
+         register: result
+       - name: send email
+         local_action:
+           module: mail
+           host: smtp.gmail.com
+           port: 587
+           to: pardeep909.ps@gmail.com
+           from: pardeep909.ps@gmail.com
+           username: pardeep909.ps@gmail.com
+           password: duggal456
+           timeout: 5
+           secure: starttls
+           subject: Ansible_Filesystem ALERT for {{inventory_hostname}}
+           body: The following filesystems are above 80% -
+
+                 {{result.stdout}}
+
+         when: result.stdout
+

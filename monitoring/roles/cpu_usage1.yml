@@ -1,0 +1,36 @@
+---
+  - hosts: localhost
+    gather_facts: false
+    tasks:
+       - shell:
+            hstname=$(hostname);
+            util=$(top -bn1 | grep "Cpu(s)" | sed "s/.*, *\([0-9.]*\)%* id.*/\1/" | awk '{print 100 - $1}');
+            ps -eo pid,ppid,cmd,%mem,%cpu --sort=-%cpu | head >/tmp/top_proccesses_consuming_cpu.txt;
+            if [ `echo "${util} > 30.0" | bc` -eq 1 ];
+            then
+            echo "$util% cpu  utilized on  $hstname" > /home/filelog.txt;
+            File=$(cat /home/filelog.txt);
+            echo $File;
+            rm -rf /home/filelog.txt;
+            fi;
+         register: result
+       - name: send email
+         local_action:
+           module: mail
+           host: smtp.gmail.com
+           port: 587
+           to: pardeep.singh@translabtechnologies.com
+           from: pardeep.singh@translabtechnologies.com
+           username: pardeep.singh@translabtechnologies.com
+           password: apple@456
+           attach:
+           - /tmp/top_proccesses_consuming_cpu.txt
+           timeout: 5
+           secure: starttls
+           subject: Ansible_CPU_UTILIZATION ALERT for {{inventory_hostname}}
+           body: WARNING CPU UTILIZATION -
+
+                 {{result.stdout}}
+
+         when: result.stdout
+

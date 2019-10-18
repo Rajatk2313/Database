@@ -1,0 +1,41 @@
+---
+- hosts: 192.168.1.90
+  gather_facts: true
+  vars:
+    ansible_become: yes
+    ansible_become_method: enable
+    ansible_user: translab
+    ansible_password: cisco
+    ansible_become_pass: cisco
+    ansible_network_os: ios
+    ansible_connection: network_cli
+  tasks:
+    - ios_command:
+        commands: 
+         - sh flash
+         - cd c2960-lanbasek9-mz.150-2.SE8
+      #   - copy flash c2960-lanbasek9-mz.150-2.SE8.bin
+      register: config
+
+    - copy:
+        content: "{{ config.stdout[0]}}"
+        dest: /flash_bkp1
+      #delegate_to: ansibletower
+   
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

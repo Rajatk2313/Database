@@ -1,0 +1,11 @@
+---
+- hosts: all
+  become: true
+  become_user: postgres
+  tasks:
+      
+  - name: create a user in postgresql-9.6
+    postgresql_user:
+      name: repusers
+      password: post@123
+

@@ -1,0 +1,14 @@
+---
+- hosts: localhost
+  become: true
+  gather_facts: no
+  tasks:
+  
+  - name: Create a new database with name 'bobdata'
+    mssql_db:
+     name: bobdata
+     state: present
+     login_host: localhost
+     login_user: sa
+     login_password: mysql@1234
+#     msg: Hello 

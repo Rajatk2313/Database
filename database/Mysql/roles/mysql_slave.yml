@@ -1,0 +1,73 @@
+---
+- hosts: 192.168.202.133
+  become: true
+  become_user: root
+
+  tasks:
+  - name: create a mysql-bin-log directory
+    file:
+      path: /var/lib/mysql/mysql-bin-log
+      state: directory
+      owner: mysql
+      group: mysql
+
+  - name: create bin-log file
+    file:
+      path: /var/lib/mysql/mysql-bin-log/mysql-bin
+      state: touch
+      owner: mysql
+      group: mysql
+  
+  - name: change slave mysql conf file 
+    blockinfile:
+      dest: /etc/my.cnf
+      block: |
+        server-id = 2
+        bind-address= 0.0.0.0
+        replicate-do-db=translab
+        log-bin = /var/lib/mysql/mysql-bin-log/mysql-bin    
+      insertafter: "^[mysqld]"
+
+  - name: restart mysqld service
+    service:
+      name: mysqld
+      state: restarted
+
+  - name: create database
+    command: mysql -u root -pMysql@123 -e 'create database translab;'
+
+
+  - name: import DB
+    shell: mysql -u root -pMysql@123 translab < /home/dbdump.db
+
+
+  - name: create rep. user
+    command: mysql -u root -pMysql@123 -e 'create user "slaveuser"@"%" identified by "Apple@123";'
+
+  - name: grant rep. permissions
+    command: mysql -u root -pMysql@123 -e 'grant replication slave on *.* to "slaveuser"@"%" identified by "Apple@123";'
+
+  - name: flush privileges
+    command: mysql -u root -pMysql@123 -e 'flush privileges;'
+
+  - name: grant all privileges for DB translab to slave user
+    command: mysql -u root -pMysql@123 -e 'grant all on translab.* to "slaveuser"@"%";'
+
+  - name: grant all privileges for DB translab to slave user
+    command: mysql -u root -pMysql@123 -e 'flush privileges;'
+
+
+  - name: restart mysqld service
+    service:
+      name: mysqld
+      state: restarted
+
+  - name: stop slave
+    command: mysql -u root -pMysql@123 -e 'stop slave;'
+
+  - name: add master log file
+    command: mysql -u root -pMysql@123 -e 'CHANGE MASTER TO MASTER_HOST="192.168.202.132", MASTER_USER="slaveuser", MASTER_PASSWORD="Apple@123", MASTER_LOG_FILE="mysql-bin.000006", MASTER_LOG_POS=154;'
+
+  - name: start slave
+    command: mysql -u root -pMysql@123 -e 'start slave;'
+

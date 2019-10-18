@@ -1,0 +1,11 @@
+---
+- hosts: 192.168.1.114
+  gather_facts: false
+  tasks:
+    - name: change the root password
+      shell:
+       mysql -u root;
+       use mysql;
+       update user set authentication_string=PASSWORD("root12345") where User='root'; 
+       flush privileges;
+     

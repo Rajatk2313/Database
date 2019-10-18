@@ -1,0 +1,10 @@
+---
+- name: playbook
+  hosts: localhost
+  vars:
+     become: true
+     gather_facts: no
+  tasks:
+     - name: Create user in mssql
+       shell: /resulter.sh
+

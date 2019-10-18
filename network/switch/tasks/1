@@ -1,0 +1,26 @@
+---
+- hosts: 192.168.1.90
+  gather_facts: false
+  vars:
+    ansible_become: yes
+    ansible_become_method: enable
+    ansible_user: translab
+    ansible_password: cisco
+    ansible_become_pass: cisco
+    ansible_network_os: ios
+    ansible_connection: network_cli 
+    tasks:
+     - name: get base information
+       ios_command:
+        commands:
+         - show run
+           host: ansilbetower
+           username: root
+           password: root@123
+
+
+
+
+
+          
+     

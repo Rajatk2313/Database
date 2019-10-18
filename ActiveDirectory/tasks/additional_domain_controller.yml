@@ -1,0 +1,41 @@
+- name: install second domain controller
+  hosts: 192.168.1.50
+  vars:
+   ansible_ssh_user: administrator
+   ansible_ssh_pass: swastik@346
+   ansible_connection: winrm
+   ansible_winrm_server_cert_validation: ignore
+   gather_facts: yes
+  tasks:
+   - name: Install AD Services feature
+     win_feature:
+      name: AD-Domain-Services
+      include_management_tools: yes
+      include_sub_features: yes
+      state: present
+     register: result
+
+   - name: Configure Primary DNS Server
+     win_dns_client:
+       adapter_names: 'Ethernet 2'
+       ipv4_addresses:
+         - 192.168.1.127
+   - name: Promote this server to Additional DC
+     win_domain_controller:
+        dns_domain_name: DUGGAL.COM
+        domain_admin_user: Duggal\Administrator
+        domain_admin_password: Apple@456
+        safe_mode_password: P@ssw0rd
+        state: domain_controller
+     register: create_forest_result
+   - name: Collect computer name result
+     debug:
+       msg: "{{ create_forest_result }}"
+
+   - name: Reboot after forest creation
+     win_reboot:
+        connect_timeout: 15
+        post_reboot_delay: 15
+        reboot_timeout: 200
+     when: create_forest_result.reboot_required
+

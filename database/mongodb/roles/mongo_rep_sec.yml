@@ -1,0 +1,26 @@
+---
+- hosts: novi
+  become: true
+  become_user: root
+  tasks:
+ 
+ 
+  - replace: 
+      path: /etc/mongod.conf
+      regexp: '  bindIp: 127.0.0.1'
+      replace: '  bindIp: 127.0.0.1,192.168.1.125'
+      backup: yes
+  
+  - name: 
+    blockinfile:
+      path: /etc/mongod.conf
+      backup: yes
+      block: |
+        replication:
+          oplogSizeMB: 1024
+          replSetName: rs0 
+
+  - name: Restart service mongod, in all cases
+    service:
+      name: mongod
+      state: restarted

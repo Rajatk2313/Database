@@ -1,0 +1,2 @@
+dns_domain_name: duggal.com
+safe_mode_password: '{{ vault_password }}'

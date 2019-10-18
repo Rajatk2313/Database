@@ -1,0 +1,24 @@
+---
+  - hosts: all
+    gather_facts: false
+    tasks:
+       - shell: ansible -m ping all|grep -i "UNREACHABLE"|cut -f1 -d"|"|grep -v "true" | cat
+         register: result
+       - name: send email
+         local_action:
+           module: mail
+           host: smtp.gmail.com
+           port: 587
+           to: pardeep.singh@translabtechnologies.com
+           from: donotreply@translabtechnologies.com
+           username: donotreply@translabtechnologies.com
+           password: April@2019
+           timeout: 20
+           secure: starttls
+           subject: Ansible_ALERT - VM Unreachable
+           body: The following systems are unreachable -
+
+                 {{result.stdout}}
+
+
+         when: result.stdout

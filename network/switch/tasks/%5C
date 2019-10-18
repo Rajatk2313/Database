@@ -1,0 +1,44 @@
+---
+- hosts: 192.168.1.90
+  gather_facts: true
+  vars:
+    ansible_become: yes
+    ansible_become_method: enable
+    ansible_user: translab
+    ansible_password: cisco
+    ansible_become_pass: cisco
+    ansible_network_os: ios
+    ansible_connection: network_cli
+  tasks:
+    - ios_command:
+        commands: show run
+     host: 192.168.1 107
+     username: gundeep Singh GD
+     password: facebook
+     register: config
+ 
+    - copy:
+        content: "{{ config.stdout[0]}}"
+        host: 192.168.1.107
+        username: Gundeep Singh GD
+        password: facebook
+        dest: C:\TFTP-Root\'{{ inventory_hostname }}'.txt"
+     delegate_to: ansibletower
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

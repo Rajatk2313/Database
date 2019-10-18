@@ -1,0 +1,18 @@
+---
+- hosts: 192.168.1.121
+  become: true
+  gather_facts: yes
+  tasks:
+  - name: Install python modules
+    yum:
+     name: MySQL-python
+     state: present
+
+  - name: Login to mysql
+    shell: mysql -u root -pRoot@123 -e 'Create database Technologies'  
+
+#  - name: Create a database with name 'Neha'
+#   mysql_db:
+#     name: neha
+#     state: present
+  

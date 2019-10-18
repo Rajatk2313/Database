@@ -1,0 +1,13 @@
+---
+- name: Ad user creation
+  hosts: 192.168.1.127
+  vars:
+   ansible_ssh_user: administrator
+   ansible_ssh_pass: Apple@456
+   ansible_connection: winrm
+   ansible_winrm_server_cert_validation: ignore
+   gather_facts: yes
+  tasks:
+    - name: Create OU
+      win_shell: New-ADOrganizationalUnit -Name "UserAccounts1" -Path "DC=Ansible,DC=COM"
+       

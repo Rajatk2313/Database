@@ -1,0 +1,9 @@
+---
+- hosts: localhost
+  gather_facts: false
+  become_user: root
+  tasks:
+    - name: Open mysql.cnf configuration file and edit it
+      blockinfile:
+      path: 
+

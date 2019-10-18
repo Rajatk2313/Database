@@ -1,0 +1,27 @@
+- name: install second domain controller
+  hosts: 192.168.1.60
+  vars:
+    ansible_ssh_user: Pardeep
+    ansible_ssh_pass: Apple@456
+    ansible_connection: winrm
+    ansible_winrm_server_cert_validation: ignore
+    gather_facts: yes
+  tasks:
+   - name: Configure Primary DNS Server
+     win_dns_client:
+      adapter_names: 'Ethernet'
+      ipv4_addresses:
+       - 192.168.1.127
+   - name: Join to the domain
+     win_domain_membership:
+      dns_domain_name: duggal.com
+      domain_admin_user: DUGGAL\Administrator 
+      domain_admin_password: Apple@456
+
+      state: domain
+     register: domain_state
+   - name: Reboot after joining
+     win_reboot:
+      msg: "Joining Domain.Rebooting..."
+      pre_reboot_delay: 15
+     when: domain_state.reboot_required 

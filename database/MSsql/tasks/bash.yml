@@ -1,0 +1,11 @@
+---
+- hosts: localhost
+  become: true
+  gather_facts: no
+  tasks:
+  - name: To make tools command available to shell path, run the following command.
+    become_method: sudo
+    shell:
+          /bin/echo 'export PATH="$PATH:/opt/mssql-tools/bin"' >> /root/.bash_profile
+    shell:
+           source /root/.bash_profile 

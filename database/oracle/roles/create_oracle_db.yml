@@ -1,0 +1,30 @@
+ - hosts: all 
+   tasks:
+   - include_vars: 
+      file: oracle_variables.yml 
+      
+   - name: create or copy create DB response file from template
+     template: src={{response_file_directory}}/{{db_response_file_name}} dest={{ patch_dir }}/{{db_response_file_name}} owner=oracle group=oinstall
+   
+   - name: create or copy netca  response file from template
+     template: src={{response_file_directory}}/{{netca_response_file_name}} dest={{ patch_dir }}/{{netca_response_file_name}} owner=oracle group=oinstall
+   
+   - name: copy General_Purpose.dbc   file from template
+     template: src={{response_file_directory}}/{{gen_purpose_dbca}} dest={{ patch_dir }}/{{gen_purpose_dbca}} owner=oracle group=oinstall
+     
+   - name: create oracle Database  
+     command: '{{oracle_home}}/bin/dbca -silent -createDatabase -responseFile {{patch_dir}}/{{db_response_file_name}}' 
+     become: true
+     become_method: su
+     become_user: oracle
+     register: create_db
+     failed_when: "'100% complete' not in create_db.stdout"
+   
+   - name: create oracle Database  
+     command: '{{oracle_home}}/bin/netca /silent /responseFile {{patch_dir}}/{{netca_response_file_name}}' 
+     become: true
+     become_method: su
+     become_user: oracle
+     register: netca_conf 
+     failed_when: "'Oracle Net Services configuration successful.' not in netca_conf.stdout"
+

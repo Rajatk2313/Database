@@ -1,0 +1,8 @@
+---
+- hosts: 192.168.1.125
+  become: true
+  tasks: 
+  - name: create schema
+    postgresql_schema:
+      name: nik
+      owner: postgres

@@ -1,0 +1,36 @@
+---
+- name: Ad user creation
+  hosts: 192.168.1.127
+  vars:
+   ansible_ssh_user: administrator
+   ansible_ssh_pass: Apple@456
+   ansible_connection: winrm
+   ansible_winrm_server_cert_validation: ignore
+   gather_facts: no
+   tasks: 
+#     - name: create group 
+#       win_group:
+#        name: test
+#        description: test
+#        scope: global 
+#        state: present
+#        ignore_protection: yes
+     
+#     - name: Create OU
+#       win_shell: New-ADOrganizationalUnit -Name "test11" -Path "DC=DUGGAL,DC=COM"
+
+     - name: Ensure user bob is created and use custom credentials to create the user
+       win_domain_user:
+        name: bob3
+        firstname: Bob3
+        surname: Smith
+        password: Mango123
+        state: present
+        path: ou=test11,dc=DUGGAL,dc=COM   
+        domain_username: DUGGAL\Administrator
+        domain_password: Apple@456
+        group: Ansible Users
+        domain_server: DUGGAL.COM
+     
+     - name: Add user to remote group
+       win_shell: Add-LocalGroupMember -Group "Remote Desktop Users" -Member "bob3"

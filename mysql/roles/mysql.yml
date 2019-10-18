@@ -1,0 +1,26 @@
+---
+- hosts: 192.168.1.114
+  gather_facts: false
+  vars: 
+      root_db: root1234
+  tasks:
+    - name: Download MySQL Community Repo
+      get_url:
+        url: http://repo.mysql.com/mysql-community-release-el7-7.noarch.rpm
+        dest: /
+    - name: Install the Mysql Repo
+      command: /usr/bin/rpm -ivh /mysql-community-release-el7-7.noarch.rpm
+    - name: Install MySql
+      yum: name=mysql-server state=present
+    - name: Install mysql-python
+      yum: name=MySQL-python state=present
+    - name: Start MySQL Server and enable it
+      service: name=mysqld state=started enabled=yes
+    - name: change root password 
+      mysql-user: name=root host={{item}} password={{root_db}}
+      with_items:
+         - "{{ansible_hostname}}"
+         - 127.0.0.1
+         - ::1
+         - localhost
+

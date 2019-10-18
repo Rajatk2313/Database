@@ -1,0 +1,8 @@
+---
+- hosts: localhost
+  gather_facts: yes
+  become_user: root
+  become: true
+  tasks:
+  - name: create user nikhil
+    shell: /var/lib/awx/projects/database/mongodb/files/user.sh

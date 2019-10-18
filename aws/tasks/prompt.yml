@@ -1,0 +1,14 @@
+---
+ - hosts: localhost
+   vars_prompt:
+    - name: Prompt
+      prompt: "Which server do you want to deploy?\n Press 1 for windows server 2012 with sql server 2016\n Press 2 for windows server 2016 with sql server 2016\n"
+      private: no
+      register: create
+   tasks:
+     - name: Include role
+       include_tasks: create_ec2_2012.yml
+       when: Prompt  == '1'
+     #- include_tasks: create_ec2_2016.yml
+      # when: ( option == "2" )
+

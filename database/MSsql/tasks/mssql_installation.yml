@@ -1,0 +1,45 @@
+---
+- hosts: web
+  become: true
+  gather_facts: yes
+  vars:
+    password: mysql@1234
+    edition: Evaluation
+  tasks:
+
+  - name: install repo for MSSQL 2017
+    get_url: url=https://packages.microsoft.com/config/rhel/7/mssql-server-2017.repo dest=/etc/yum.repos.d
+
+  - name: Download repo for MSSQL Tools
+    get_url: url=https://packages.microsoft.com/config/rhel/7/prod.repo dest=/etc/yum.repos.d/msprod.repo
+
+  - name: install mssql-server
+    yum:
+      name: mssql-server
+      state: present
+ 
+  - name: install mssql-tools
+    yum:
+      name: mssql-tools
+      state: present
+
+  - name: install unixODBC-devel
+    yum:
+      name: unixODBC-devel
+      state: present
+
+  - name: start mssql service
+    service:
+      name: mssql-server
+      state: started
+
+  - name: enable mssql service
+    service:
+      name: mssql-server
+      enabled: yes
+
+  - name: initialize mssql-server
+    shell: MSSQL_PID="{{edition}}" MSSQL_SA_PASSWORD="{{password}}" /opt/mssql/bin/mssql-conf -n setup accept-eula
+                                                                               
+ 
+

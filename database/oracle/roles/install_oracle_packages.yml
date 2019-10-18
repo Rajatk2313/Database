@@ -1,0 +1,11 @@
+---
+- hosts: all
+  tasks:
+   - include_vars: 
+      file: oracle_variables.yml 
+   - name: Install Oracle Yum Libraries 
+     yum: 
+      name: "{{item.package}}" 
+      state: present
+     with_items: 
+       - "{{packages}}" 

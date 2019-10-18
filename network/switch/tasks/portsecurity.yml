@@ -1,0 +1,21 @@
+---
+- hosts: 192.168.1.90
+  gather_facts: true
+  vars:
+    ansible_become: yes
+    ansible_become_method: enable
+    ansible_user: translab
+    ansible_password: cisco
+    ansible_become_pass: cisco
+    ansible_network_os: ios
+    ansible_connection: network_cli
+  tasks:
+   - name: port security
+     ios_config:
+       lines:
+        - switchport mode access
+        - switchport port security
+        - switchport security maximum 1
+        - switchport port security mac-address sticky
+        - switchport port security voilation shutdown
+       parents: internet fastethernet 0/24

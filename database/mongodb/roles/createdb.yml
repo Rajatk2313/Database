@@ -1,0 +1,13 @@
+---
+- hosts: localhost
+  become: true
+  become_user: root
+  tasks:
+
+#  - mongodb_user:
+#      database: test
+#      name: ram
+#      password: 12345
+#      state: present
+  - name: create collection
+    shell: /var/lib/awx/projects/database/mongodb/files/db.sh

@@ -1,0 +1,19 @@
+--- 
+- hosts: localhost
+  become: true
+  become_user: root
+  tasks:
+  - name: CHECK WHETHER MONGODB SERVICE IS RUNNING 
+    command: systemctl status mongod
+    ignore_errors: yes
+    changed_when: false
+    register: service_mongodb_status
+
+  - name: Report status of Apache
+    fail:
+      msg: |
+        Service mongodb is not running.
+        Output of `systemctl status mongod`:
+        {{ service_apache_status.stdout }}
+        {{ service_apache_status.stderr }}
+    when: service_mongodb_status | failed

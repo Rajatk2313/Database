@@ -1,0 +1,34 @@
+---
+- hosts: 192.168.229.145
+  gather_facts: false
+  tasks:
+    - name: cp abc.sh to clients
+      copy: src=/hardening/p_chk_har_parm.sh  dest=/
+    - file:
+        path: /p_chk_har_parm.sh
+        owner: root
+        group: root
+        mode: 01750
+    - name: Execute the script
+      command:
+        sh /p_chk_har_parm.sh
+    - name: show cat files
+      command:
+        cat /new_hard_param.txt
+      register: result
+    - name: send email
+      local_action:
+        module: mail
+        host: smtp.gmail.com
+        port: 587
+        to: pardeep.singh@translabtechnologies.com
+        cc: nikhil.dogra@translabtechnologies.com
+        from: pardeep.singh@translabtechnologies.com
+        username: pardeep.singh@translabtechnologies.com
+        password: apple@456
+        timeout: 5
+        subject: Param_check for
+        body: Param_check -
+              {{result.stdout}}
+
+      when: result.stdout

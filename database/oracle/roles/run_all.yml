@@ -1,0 +1,4 @@
+- include: install_oracle_packages.yml 
+- include: oracle_users.yml 
+- include: install_oracle_binaries.yml 
+- include: create_oracle_db.yml 

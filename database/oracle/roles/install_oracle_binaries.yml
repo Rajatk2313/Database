@@ -1,0 +1,49 @@
+ - hosts: all 
+   tasks:
+   - include_vars: 
+      file: oracle_variables.yml 
+      
+   - name: check u01 free disk space
+     action: shell df -P /home | awk 'END { print $4 }'
+     register: u01size
+     failed_when: u01size.stdout|int < {{ u01_size_gb }} * 1024 * 1024
+     
+   - name: check tmp free disk space
+     action: shell df -P /tmp | awk 'END { print $4 }'
+     register: tmpsize
+     failed_when: tmpsize.stdout|int < {{ tmp_size_gb }} * 1024 * 1024
+     
+   - name: create directory for installation files
+     action: file dest={{ patch_dir }} state=directory owner=oracle group=oinstall
+   
+   - name: create directory for oracle Home Directory
+     action: file dest={{oracle_base }} state=directory owner=oracle group=oinstall
+     
+   - name: copy Binary to destinations
+     copy: src={{source_file_directory}}/{{ item.softwarename }} dest={{ patch_dir }} owner=oracle group=oinstall mode=0644
+     with_items:
+      - "{{software}}"
+      
+   - name: Unzip Oracle Binaries
+     action: shell unzip -oq {{ patch_dir }}/{{item.softwarename}} -d {{ patch_dir }}
+     with_items:
+      - "{{software}}"
+     become: true
+     become_method: su
+     become_user: oracle
+   
+   - name: create or copy response file from template
+     template: src={{response_file_directory}}/{{response_file_name}} dest={{ patch_dir }}/{{response_file_name}} owner=oracle group=oinstall
+     
+   - name: Install Oracle Software  
+     command: '{{oracle_install_directory}}/runInstaller -silent -responseFile {{patch_dir}}/{{response_file_name}} -ignoreSysPrereqs -ignorePrereq -waitforcompletion' 
+     become: true
+     become_method: su
+     become_user: oracle
+     register: install_db_software
+     failed_when: "'Successfully Setup Software.' not in install_db_software.stdout"
+
+   - name: run root.sh
+     command: "{{ oracle_home }}/root.sh"
+     register: run_root_sh
+     failed_when: "'for the output of root script' not in run_root_sh.stdout"

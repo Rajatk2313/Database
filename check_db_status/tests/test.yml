@@ -1,0 +1,14 @@
+---
+- hosts: localhost
+  become_user: root
+  become: true
+  tasks:
+  - name: check mongodb service status
+    command: systemctl status mongod | grep "failed"
+    register: result
+    ignore_errors: yes
+
+  - name: showing report
+    debug:
+     var: result
+  

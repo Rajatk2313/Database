@@ -1,0 +1,36 @@
+---
+- name: Playbook
+  hosts: 192.168.1.60
+  vars:
+   ansible_ssh_user: DUGGAL\Administrator
+   ansible_ssh_pass: Apple@456
+   ansible_connection: winrm
+   ansible_winrm_server_cert_validation: ignore
+   gather_facts: no
+  tasks:
+   - name: Download ClamAV Antvirus
+     win_get_url:
+        url: https://www.clamav.net/downloads/production/clamav-0.101.2-win-x64-portable.zip
+        dest: C:\Temp
+   - name: Unzip ClamAV
+     win_unzip:
+        src: C:\Temp\clamav-0.101.2-win-x64-portable.zip
+        dest: C:\Temp\ClamAV
+        creates: C:\Temp\ClamAV
+   - name: Download ClamAV Signature
+     win_get_url:
+        url: https://www.clamav.net/downloads/production/clamav-0.101.2-win-x64-portable.zip.sig
+        dest: C:\Temp\ClamAV\database
+   - name: config ClamAV
+     win_shell:
+         copy C:\Temp\ClamAV\conf_examples\freshclam.conf.sample C:\Temp\ClamAV\conf_examples\freshclam.conf
+   - name: Edit file
+     win_lineinfile:
+         path: C:\Temp\ClamAV\conf_examples\freshclam.conf
+         regexp: 'Example'
+         line: '#Example'
+
+   - name: Install clamAV
+     win_shell:
+         start C:\Temp\ClamAV\freshclam.exe
+

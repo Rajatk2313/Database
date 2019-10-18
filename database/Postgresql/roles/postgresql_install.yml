@@ -1,0 +1,47 @@
+---
+- hosts: all
+  become: true
+  gather_facts: no
+  tasks:
+
+  - name: install repo for PostgreSQL 9.6
+    get_url: url=https://download.postgresql.org/pub/repos/yum/9.6/redhat/rhel-7-x86_64/pgdg-centos96-9.6-3.noarch.rpm dest=/
+
+  - name: install postgres
+    yum:
+      name: /pgdg-centos96-9.6-3.noarch.rpm
+      state: present
+
+  - name: install postgresql-server
+    yum:
+      name: postgresql96-server 
+      state: present
+
+  - name: install postgresql96
+    yum:
+      name: postgresql96
+      state: present
+
+  - name: install postgresql96-contrib
+    yum:
+      name: postgresql96-contrib
+      state: present
+
+  - name: initialize
+    command: /usr/pgsql-9.6/bin/postgresql96-setup initdb
+
+  - name: start postgresql service
+    service:
+      name: postgresql-9.6
+      state: started
+  
+  - name: enable postgresql service
+    service:
+      name: postgresql-9.6
+      enabled: yes
+  
+  - name: Install python-psycopg2
+    yum:
+      name: python-psycopg2
+      state: present
+
